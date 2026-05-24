@@ -1,0 +1,47 @@
+ /* Navbar link hover styling (desktop) */
+        .navbar-nav .nav-link {
+            background-color: rgba(255, 255, 255, 0.35);
+            border-radius: 0.4rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link:focus {
+            background-color: rgba(0, 123, 255, 0.15);
+            color: #0d6efd;
+        }
+
+        /* Reduce visual height of cards by ~10% */
+        .card.h-100 {
+            transform-origin: top;
+            transform: scaleY(0.9);
+            transition: transform 0.15s ease;
+        }
+
+        /* Slightly tighten card body padding to match reduced height */
+        .card.h-100 .card-body {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        /* Mobile-specific card height control */
+        @media (max-width: 767.98px) {
+            .card.h-100 {
+                transform-origin: top;
+                transform: scaleY(0.92); /* reduce card height on mobile: smaller values = shorter cards */
+            }
+
+            .card-img-top {
+                height: 130px; /* reduce image height on mobile: lower value = shorter image */
+                object-fit: cover; /* keep image proportions while cropping */
+            }
+
+            .card-body {
+                padding-top: 0.65rem; /* mobile card top padding: decrease to reduce height */
+                padding-bottom: 0.65rem; /* mobile card bottom padding: decrease to reduce height */
+            }
+
+            .card-text {
+                font-size: 0.95rem; /* mobile text size: lower value makes text smaller */
+            }
+        }

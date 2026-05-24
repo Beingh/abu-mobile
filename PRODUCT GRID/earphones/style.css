@@ -1,0 +1,63 @@
+.card-price {
+            color: #dc3545;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        .card-price del {
+            color: #6c757d;
+            font-size: 0.95rem;
+            font-weight: 400;
+            margin-right: 0.35rem;
+        }
+
+        .stock-sticker {
+            background-color: rgba(220, 53, 69, 0.23);
+            color: yellow;
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
+        }
+
+        .brand-badge {
+            background-color: #dc3545;
+            color: yellow;
+        }
+
+        .card-body {
+            padding-bottom: 0;
+        }
+
+        .category-buttons {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        @media (min-width: 992px) {
+            .product-card-col {
+                flex: 0 0 20%;
+                max-width: 20%;
+            }
+        }
+
+        .section-heading {
+            color: #ff1493;
+            font-family: Georgia, "Times New Roman", serif;
+            text-shadow: 2px 2px 0 #ffc107;
+            margin: 0;
+        }
+
+        @media (max-width: 575.98px) {
+            .product-link {
+                word-break: break-all;
+                overflow-wrap: anywhere;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .product-link {
+                text-align: center;
+            }
+        }
+ 

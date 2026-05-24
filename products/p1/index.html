@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Square Cards</title>
+    <!-- Load Bootstrap CSS for responsive grid, carousel, and utility classes -->
+    <link rel="stylesheet" href="bootstrap.css">
+    <!-- Load custom application styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-light">
+
+    <!-- Main navbar container -->
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="navbar navbar-expand-lg navbar-light w-100" style="background-color: #e7f5ff;">
+                <div class="container-fluid">
+                    <!-- Brand / logo -->
+                    <a class="navbar-brand" href="#">Mobi Hub</a>
+
+                    <!-- Mobile menu toggle -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Collapsible navigation links -->
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="../../../index.html">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="tel:+918237256620" aria-label="Call mobile number">Mobile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://wa.me/8237256620" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">WhatsApp</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Responsive carousel / gallery wrapper -->
+    <div class="fluid-container pt-0 mt-0">
+        <div class="container-fluid px-0">
+
+            <!-- Mobile-only carousel: visible on small screens (d-block d-md-none) -->
+            <div class="carousel-container d-block d-md-none">
+                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-touch="true">
+                    <div class="carousel-inner">
+                        <!-- Each carousel-item contains one image slide -->
+                        <div class="carousel-item active">
+                            <div class="carousel-image-wrapper">
+                                <img src="u30.png" class="d-block w-100 carousel-image" alt="Charging cable">
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="carousel-image-wrapper">
+                                <img src="u30.1.png" class="d-block w-100 carousel-image" alt="Landmark image">
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="carousel-image-wrapper">
+                                <img src="portronics L.png" class="d-block w-100 carousel-image" alt="Portronics image">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Small dot indicators below the carousel -->
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+
+                    <!-- Prev/next controls for touch and keyboard navigation -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Desktop product viewer: visible on medium screens and larger -->
+            <div class="desktop-gallery-container d-none d-md-block">
+                <!-- Full-width bootstrap container with full height and no horizontal padding -->
+                <div class="container-fluid h-100 px-0">
+                    <!-- Bootstrap row split into 2 columns for thumbnails and 10 columns for the main product image -->
+                    <div class="row h-100 gx-3 align-items-stretch product-viewer-row">
+                        <!-- Left column: 2 of 12 columns on md+ screens, holds vertical thumbnails -->
+                        <div class="col-md-2">
+                            <!-- Flex column layout for stacked thumbnails with gap and centered vertical alignment -->
+                            <div class="gallery-thumbnails d-flex flex-column gap-2 h-100 justify-content-center">
+                                <button type="button" class="gallery-thumb active" data-image="charging cable.png" data-alt="Charging cable">
+                                    <img src="charging cable.png" alt="Charging cable" class="gallery-thumb-img">
+                                </button>
+                                <button type="button" class="gallery-thumb" data-image="landmark.png" data-alt="Landmark image">
+                                    <img src="landmark.png" alt="Landmark" class="gallery-thumb-img">
+                                </button>
+                                <button type="button" class="gallery-thumb" data-image="portronics L.png" data-alt="Portronics image">
+                                    <img src="portronics L.png" alt="Portronics" class="gallery-thumb-img">
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Right column: 10 of 12 columns on md+ screens, large image viewer area -->
+                        <div class="col-md-10">
+                            <!-- Viewer container centered both vertically and horizontally -->
+                            <div class="desktop-gallery-viewer h-100 d-flex align-items-center justify-content-center">
+                                <img id="desktopGalleryMainImage" src="charging cable.png" alt="Charging cable" class="desktop-gallery-main-image">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS for carousel behavior and responsive components -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Find the large desktop viewer image element
+            const desktopMainImage = document.getElementById('desktopGalleryMainImage');
+            // Find all thumbnail buttons in the desktop gallery
+            const galleryThumbs = document.querySelectorAll('.gallery-thumb');
+
+            galleryThumbs.forEach(function (thumb) {
+                thumb.addEventListener('click', function () {
+                    // Remove active state from all thumbnails
+                    galleryThumbs.forEach(function (button) {
+                        button.classList.remove('active');
+                    });
+
+                    // Activate the clicked thumbnail
+                    thumb.classList.add('active');
+
+                    // Update the large viewer with the selected image
+                    desktopMainImage.src = thumb.getAttribute('data-image');
+                    desktopMainImage.alt = thumb.getAttribute('data-alt');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,189 +1,604 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Page metadata -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Carousel</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <title>Document</title>
+  <!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    /* ── Wrapper ── */
+    /* Arrow buttons are 32px wide each side */
+    /* .carousel-section { position: relative; padding: 0 36px; } */
 
-    <!-- Stylesheets: Bootstrap then custom styles -->
-    <link rel="stylesheet" href="bootstrap-5.0.2-dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+.carousel-section { position: relative; padding: 0; }
+    /* ── Scroll container ── */
+    .product-scroll {
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 10px;
+      /* Snap to card boundaries so touch-swipe doesn't free-scroll */
+      scroll-snap-type: x mandatory;
+    }
+    .product-scroll::-webkit-scrollbar { display: none; }
 
-    <!-- Inline styles (kept empty for now) -->
-    <style>
-    </style>
+    /* Every card is a snap point */
+    .product-card { scroll-snap-align: start; }
 
+    /* ── Card widths ──
+       Mobile (<576px)  → exactly 2 cards: (100% - 1 gap) / 2
+       Tablet (576-991) → 3 cards
+       Desktop (≥992px) → exactly 4 cards
+       We use the scroll container width (100%) minus total gaps, divided by count.
+       Since padding-x on .carousel-section is 36px each side (72px total),
+       the scroll area = 100vw - 72px - container padding.
+       Safest approach: use px-based container padding + calc with vw.
+    */
+    .product-card {
+      /* 2 cards on mobile: (scrollWidth - 1 gap) / 2
+         scrollWidth ≈ 100vw - 72px (arrows) - 24px (container px-3) = 100vw - 96px
+         card = (100vw - 96px - 10px) / 2                                          */
+      flex: 0 0 calc((100vw - 106px) / 2);
+      text-decoration: none;
+      color: #111;
+    }
+    @media (min-width: 576px) {
+      /* 3 cards: (100vw - 96px - 20px gap) / 3 */
+      .product-card { flex: 0 0 calc((100vw - 116px) / 3); }
+    }
+    @media (min-width: 992px) {
+      /* 4 cards exactly — container is max 1320px on xxl but we use 100% of scroll area */
+      .product-card { flex: 0 0 calc((100% - 30px) / 4); }
+      .product-scroll { gap: 10px; }
+    }
+
+    /* ── Card image ── */
+    .product-card .card { border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; }
+    .product-card .card-img-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 75%;   /* reduced from 100% to 75% — frees space for title */
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+    .product-card .card-img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.25s;
+    }
+    .product-card:hover .card-img-wrap img { transform: scale(1.04); }
+
+    /* overlay buttons on hover */
+    .product-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .product-card:hover .product-overlay { opacity: 1; }
+
+    /* ── Card title ── */
+    .product-card .card-body {
+      padding: 6px 8px 8px;
+    }
+    .product-card .card-title {
+      font-size: 0.95rem;      /* bigger on mobile */
+      font-weight: 700;
+      margin: 0;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    @media (min-width: 992px) {
+      .product-card .card-body  { padding: 8px 10px 10px; }
+      .product-card .card-title { font-size: 1.05rem; }   /* bigger on desktop */
+    }
+
+    /* ── Arrow buttons ── */
+    .arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-60%);
+      z-index: 10;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      padding: 0;
+    }
+    @media (min-width: 992px) { .arrow-btn { width: 38px; height: 38px; } }
+    .arrow-btn:hover { background: #f0f0f0; box-shadow: 0 3px 12px rgba(0,0,0,0.3); }
+    .arrow-btn svg { width: 14px; height: 14px; }
+    @media (min-width: 992px) { .arrow-btn svg { width: 20px; height: 20px; } }
+    .arrow-btn.left  { left:  0; }
+    .arrow-btn.right { right: 0; }
+    .arrow-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* Section title */
+    .section-heading { font-size: 1.2rem; font-weight: 700; color: #111; }
+    @media (min-width: 992px) { .section-heading { font-size: 1.4rem; } }
+  </style>
 </head>
+<body class="bg-white py-4">
 
-<body>
+<!-- <div class="container-fluid px-0 px-md-0"> -->
+<div class="container-fluid px-0 px-md-0 mb-0 pb-0">
+<div class="row bg-primary py-2 px-xl-5">
 
-    <!-- Main navbar container -->
-    <div class="container-fluid">
+        <div class="col-lg-6 d-none d-lg-block">
 
-        <!-- Row wrapper used to position the navbar -->
-        <div class="row">
+            <div class="d-inline-flex align-items-center">
 
-            <!-- Navbar: brand, toggler, and navigation links -->
-            <nav class="navbar navbar-expand-lg navbar-light w-100" style="background-color: #e7f5ff;">
-                <div class="container-fluid">
+                <a class="text-dark" href="">FAQs</a>
 
-                    <!-- Brand / logo link -->
-                    <a class="navbar-brand" href="#">Mobi Hub</a>
+                <span class="text-muted px-2">|</span>
 
-                    <!-- Mobile toggle button -->
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                <a class="text-dark" href="">Help</a>
 
-                    <!-- Collapsible navbar links -->
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto">
+                <span class="text-muted px-2">|</span>
 
-                            <!-- Home nav item -->
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="">Home</a>
-                            </li>
+                <a class="text-dark" href="">Support</a>
 
-                            <!-- Features nav item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Features</a>
-                            </li>
+            </div>
 
-                            <!-- Mobile contact nav item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="tel:+918237256620" aria-label="Call mobile number">Mobile</a>
-                            </li>
+        </div>
 
-                            <!-- WhatsApp contact nav item (opens in new tab) -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="https://wa.me/8237256620" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">WhatsApp</a>
-                            </li>
+        <div class="col-lg-6 text-center text-lg-end">
 
-                        </ul>
-                    </div>
+            <div class="d-inline-flex align-items-center">
 
-                </div>
-            </nav>
+                <a class="text-dark px-2" 
+   href="https://wa.me/918237256620" 
+   target="_blank">
+
+    <i class="fab fa-whatsapp"></i>
+
+</a>
+
+<a class="text-dark px-2" 
+   href="tel:+918237256620" 
+   target="_blank">
+
+    <i class="fas fa-mobile-alt"></i>
+
+</a>
+
+<a class="text-dark px-2" 
+   href="https://www.linkedin.com/in/abu-cloud/" 
+   target="_blank">
+
+    <i class="fab fa-linkedin-in"></i>
+
+</a>
+
+                <a class="text-dark px-2" href="">
+                    <i class="fab fa-instagram"></i>
+                </a>
+
+                <a class="text-dark ps-2" href="">
+                    <i class="fab fa-youtube"></i>
+                </a>
+
+            </div>
 
         </div>
 
     </div>
 
+    <!-- <div class="row align-items-center py-3 px-xl-5"> -->
+      <div class="row align-items-center pt-3 pb-0 px-xl-5">
 
-    <!-- Categories heading below navbar -->
-    <div class="container-fluid mt-4">
+        <div class="col-lg-3 d-none d-lg-block">
 
-        <div class="row">
-            <div class="col-12 text-center">
-                <!-- Section title for category listing -->
-                <h2 class="fw-bold" style="color: #ff6b6b; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">Categories</h2>
-            </div>
+            <a href="" class="text-decoration-none">
+
+                <h1 class="m-0 display-5 fw-semibold">
+
+                    <span class="text-primary fw-bold border px-2 me-1">
+                        E
+                    </span>
+
+                    Shopper
+
+                </h1>
+
+            </a>
+
+        </div>
+
+        <div class="col-lg-6 col-6 text-start">
+
+            <form action="">
+
+                <div class="input-group">
+
+                    <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Search for products">
+
+                    <span class="input-group-text bg-transparent text-primary">
+
+                        <i class="fa fa-search"></i>
+
+                    </span>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="col-lg-3 col-6 text-end">
+<a href="#" class="btn border position-relative me-2">
+
+    <i class="fas fa-heart text-primary"></i>
+
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        0
+    </span>
+
+</a>
+<a href="" class="btn border position-relative">
+
+    <i class="fas fa-shopping-cart text-primary"></i>
+
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        0
+    </span>
+
+</a>
+
         </div>
 
     </div>
 
+</div>
+  <!-- Header -->
+  <!-- <div class="d-flex align-items-center justify-content-between mb-3"> -->
+    <!-- <span class="section-heading">Related Products</span> -->
+    <!-- <a href="shop.html" class="text-decoration-none text-primary fw-semibold" style="font-size:.85rem;">See all</a> -->
+  <!-- </div> -->
+<!-- ============================================================
+     HOW TO ADD A NEW ROW:
+     1. Copy everything between the markers:
+           ▼▼▼ COPY FROM HERE ▼▼▼
+        and
+           ▲▲▲ COPY TILL HERE ▲▲▲
+     2. Paste it BELOW the line that says:
+           👇 PASTE NEW ROW HERE
+     3. Change the heading text, card images, titles, and links
+     4. NO changes needed in the JavaScript — it works automatically
+============================================================ -->
 
-    <!-- Category cards grid -->
-    <div class="container-fluid mt-3">
 
-        <div class="row gx-3 gy-4">
+<!-- =============== ROW 1 (already exists) =============== -->
 
-            <!-- Category card: Charging Adapter -->
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm">
-                    <!-- Card image -->
-                    <img src="images/category/charger.png" class="card-img-top" alt="Charging Adapter">
+<!-- ▼▼▼ COPY FROM HERE ▼▼▼ -->
+<!-- <div class="container-fluid px-3 px-md-4 mt-4"> -->
+  <div class="container-fluid px-0 mt-0">
 
-                    <!-- Card body: title, description, action -->
-                    <div class="card-body d-flex flex-column mt-0 mb-0">
-                        <h5 class="card-title mt-0 mb-0">Charging Adapter</h5>
-                        <p class="card-text text-muted">Fast and reliable charging adaptor with a compact design for safe everyday charging at home, office, or travel.</p>
-                        <a href="#" class="btn btn-primary mt-auto">View Charging Adapter</a>
-                    </div>
-                </div>
+  <!-- Change this heading for each new row -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <!-- <span class="section-heading">Related Products</span> -->
+    <!-- <a href="shop.html" class="text-decoration-none text-primary fw-semibold" style="font-size:.85rem;">See all</a> -->
+  </div>
+
+  <div class="carousel-section">
+
+    <!-- Left arrow — keep as-is, do NOT add any id -->
+    <button class="arrow-btn left" aria-label="Previous" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <!-- Scrollable row — keep as-is, do NOT add any id -->
+    <div class="product-scroll">
+
+      <!-- ─────────────────────────────────────────
+           CARD — change only 3 things per card:
+           1. href       → your product page
+           2. img src    → your image file
+           3. card-title → your product name
+           Then duplicate this block for more cards
+      ───────────────────────────────────────── -->
+
+      <a href="PRODUCT GRID/charging cable/C TYPE/index.html" class="product-card">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="images/category/charging cable.png" alt="Charging Cable"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
             </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Charging Cable</p>
+          </div>
+        </div>
+      </a>
 
-            <!-- Category card: Earphones -->
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm">
-                    <img src="images/category/earphone.png" class="card-img-top" alt="Earphones">
-
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title  mt-0 mb-0">Earphones</h5>
-                        <p class="card-text text-muted">High-quality earphones with excellent sound performance and comfortable fit for extended listening sessions.</p>
-                        <a href="#" class="btn btn-primary mt-auto">View Earphones</a>
-                    </div>
-                </div>
+      <a href="PRODUCT GRID/earphones/index.html" class="product-card">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="images/category/earphone.png" alt="Old Stuff"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
             </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Earphones</p>
+          </div>
+        </div>
+      </a>
 
-            <!-- Category card: Charging Cables -->
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm">
-                    <img src="images/category/charging cable.png" class="card-img-top" alt="Charging Cables">
-
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title  mt-0 mb-0">Charging Cables</h5>
-                        <p class="card-text text-muted">Durable fast-charging cable with stable data transfer and a flexible design for everyday charging and syncing needs.</p>
-                        <a href="PRODUCT GRID/chargers/C TYPE/index.html" class="btn btn-primary mt-auto">View Charging Cables</a>
-                    </div>
-                </div>
+      <a href="PRODUCT GRID/Charging Adapters/index.html" class="product-card">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="images/category/charger.png" alt="Charger"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
             </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Charger</p>
+          </div>
+        </div>
+      </a>
 
-            <!-- Category card: Mobile Stands -->
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm">
-                    <img src="images/category/mobile stand.png" class="card-img-top" alt="Mobile Stands">
-
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title  mt-0 mb-0">Mobile Stands</h5>
-                        <p class="card-text text-muted">Keep your smartphone secure and hands-free with this sturdy and adjustable mobile stand, perfect for watching videos, video calls.</p>
-                        <a href="#" class="btn btn-primary mt-auto">View Mobile Stands</a>
-                    </div>
-                </div>
+      <a href="PRODUCT GRID/CAble protector/index.html" class="product-card">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="images/category/cable protector.png" alt="Cable Protector"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
             </div>
-        <!-- Category card: Cable Protector -->
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm">
-                    <!-- Card image -->
-                    <img src="images/category/cable protector.png" class="card-img-top" alt="Cable Protector">
+          </div>
+          <div class="card-body">
+            <p class="card-title">Cable Protector</p>
+          </div>
+        </div>
+      </a>
 
-                    <!-- Card body: title, description, action -->
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title  mt-0 mb-0">Cable Protector</h5>
-                        <p class="card-text text-muted">Protect your charging cables from damage with this durable cable protector, designed for long-lasting performance and reliable connectivity.</p>
-                        <a href="#" class="btn btn-primary mt-auto">View Cable Protector</a>
-                    </div>
-                </div>
+      <a href="PRODUCT GRID/old stiff/index.html" class="product-card">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="images/category/old stuff.png" alt="Charging Cable"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
             </div>
-            
-        <!-- Category card: Old Stuff -->
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm">
-                    <!-- Card image -->
-                    <img src="images/category/old stuff.png" class="card-img-top" alt="Old Stuff">
+          </div>
+          <div class="card-body">
+            <p class="card-title">Old Stuff</p>
+          </div>
+        </div>
+      </a>
 
-                    <!-- Card body: title, description, action -->
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title  mt-0 mb-0">Old Stuff</h5>
-                        <p class="card-text text-muted">Find great deals on our selection of gently used electronics,tools and accessories, At Very Cheap Prices</p>
-                        <a href="#" class="btn btn-primary mt-auto">View Old Stuff</a>
-                    </div>
-                </div>
+      <a href="PRODUCT GRID/Mobile Stand/index.html" class="product-card">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="images/category/mobile stand.png" alt="Mobile Stands"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
             </div>
-    </div>
-    </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Mobile Stands</p>
+          </div>
+        </div>
+      </a>
+
+      <!-- ➕ Add more cards above this line by duplicating a card block above -->
+
+    </div><!-- /product-scroll -->
+
+    <!-- Right arrow — keep as-is, do NOT add any id -->
+    <button class="arrow-btn right" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+
+  </div><!-- /carousel-section -->
+
+</div><!-- /container -->
+<!-- ▲▲▲ COPY TILL HERE ▲▲▲ -->
 
 
+<!-- ============================================================
+     👇 PASTE NEW ROW HERE — paste the copied block below this line
+     Then change: heading text, card images, card titles, href links
+============================================================ -->
 
 
+<!-- =============== EXAMPLE: ROW 2 (already pasted & renamed) =============== -->
+
+<!-- <div class="container-fluid px-3 px-md-4 mt-0"> -->
+  
+  <div class="container-fluid px-0 mt-0">
+
+  <!-- ✏️ Changed heading to "New Arrivals" -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <!-- <span class="section-heading">New Arrivals</span> -->
+    <!-- <a href="new-arrivals.html" class="text-decoration-none text-primary fw-semibold" style="font-size:.85rem;">See all</a> -->
+  </div>
+
+  <div class="carousel-section">
+
+    <button class="arrow-btn left" aria-label="Previous" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <div class="product-scroll">
+
+      <!-- ✏️ Changed images and titles for Row 2 -->
+
+      <a href="shop-single.html" class="product-card pe-none opacity-50">
+
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="earphone.png" alt="Earphone"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Earphone</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="shop-single.html" class="product-card pe-none opacity-50">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="charger.png" alt="Fast Charger"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Fast Charger</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="shop-single.html" class="product-card abs pe-none opacity-50">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="cable.png" alt="USB Cable"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">USB Cable</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="shop-single.html" class="product-card pe-none opacity-50">
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="old stuff.png" alt="Vintage Item"/>
+            <div class="product-overlay">
+              <button class="btn btn-success btn-sm text-white">View</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Vintage Item</p>
+          </div>
+        </div>
+      </a>
+
+      <!-- ➕ Add more cards above this line -->
+
+    </div><!-- /product-scroll -->
+
+    <button class="arrow-btn right" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+
+  </div><!-- /carousel-section -->
+
+</div><!-- /container -->
 
 
-    <!-- Bootstrap JavaScript bundle -->
-    <script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+<!-- ============================================================
+     👇 PASTE ANOTHER NEW ROW HERE if needed
+============================================================ -->
 
-</body>
 
+<!-- ============================================================
+     JAVASCRIPT — ONE BLOCK ONLY — handles ALL rows above
+     DO NOT copy or repeat this script for new rows
+     DO NOT add id attributes to arrow buttons or scroll divs
+============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function scrollAmount(scroll) {
+    const card = scroll.querySelector('.product-card');
+    const cardW = card ? card.offsetWidth : 160;
+    const gap = 10;
+    if (window.innerWidth >= 992) return scroll.clientWidth;
+    if (window.innerWidth >= 576) return (cardW + gap) * 3;
+    return (cardW + gap) * 2;
+  }
+
+  function updateArrows(scroll) {
+    const section = scroll.closest('.carousel-section');
+    section.querySelector('.arrow-btn.left').disabled  = scroll.scrollLeft <= 0;
+    section.querySelector('.arrow-btn.right').disabled = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 2;
+  }
+
+  /* Automatically wires up every .carousel-section on the page */
+  document.querySelectorAll('.carousel-section').forEach(section => {
+    const scroll   = section.querySelector('.product-scroll');
+    const btnLeft  = section.querySelector('.arrow-btn.left');
+    const btnRight = section.querySelector('.arrow-btn.right');
+
+    btnLeft.addEventListener('click', () => {
+      scroll.scrollBy({ left: -scrollAmount(scroll), behavior: 'smooth' });
+    });
+
+    btnRight.addEventListener('click', () => {
+      scroll.scrollBy({ left: scrollAmount(scroll), behavior: 'smooth' });
+    });
+
+    scroll.addEventListener('scroll', () => updateArrows(scroll), { passive: true });
+    updateArrows(scroll);
+
+    let touchStartX = 0;
+    let touchStartScroll = 0;
+
+    scroll.addEventListener('touchstart', e => {
+      touchStartX      = e.touches[0].clientX;
+      touchStartScroll = scroll.scrollLeft;
+      scroll.style.scrollSnapType = 'none';
+    }, { passive: true });
+
+    scroll.addEventListener('touchend', e => {
+      const deltaX = touchStartX - e.changedTouches[0].clientX;
+      scroll.style.scrollSnapType = '';
+      if (Math.abs(deltaX) > 40) {
+        const target = deltaX > 0
+          ? touchStartScroll + scrollAmount(scroll)
+          : touchStartScroll - scrollAmount(scroll);
+        scroll.scrollTo({ left: target, behavior: 'smooth' });
+      } else {
+        scroll.scrollTo({ left: touchStartScroll, behavior: 'smooth' });
+      }
+    }, { passive: true });
+  });
+
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.product-scroll').forEach(updateArrows);
+  });
+</script>
+  </body>
 </html>

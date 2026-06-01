@@ -1,0 +1,134 @@
+/* Wrapper for the responsive carousel image on mobile */
+.carousel-image-wrapper {
+    /* width: 100%; */
+    /* height: clamp(220px, 40vw, 320px); */
+    /* height: 100%; default height for mobile banner; adjust as needed */
+    width: 100%; /* default width for mobile banner; adjust as needed */
+    margin: 0 auto; /* center the wrapper */
+     aspect-ratio:4/3;
+         max-height:80vh;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Carousel image styling ensures images keep their aspect ratio */
+.carousel-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Desktop gallery container spans the full viewport on medium and larger screens */
+.desktop-gallery-container {
+    width: 100%;
+    min-height: calc(100vh - 56px);
+    padding: 24px;
+    background-color: #f6f8fb;
+}
+
+.product-viewer-row {
+    min-height: calc(100vh - 104px);
+}
+
+.gallery-thumbnails {
+    padding: 8px 0;
+}
+
+.gallery-thumbnails .gallery-thumb {
+    width: 100%;
+}
+
+/* Thumbnail button styling removes default button appearance */
+.gallery-thumb {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    /* margin:0; */
+}
+
+/* Thumbnail image appearance and sizing */
+.gallery-thumb-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    border: 2px solid #d5d9d9;
+    border-radius: 8px;
+    object-fit: contain;
+    background-color: #ffffff;
+    display: block;
+    padding: 6px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-thumb {
+    min-height: auto;
+}
+
+/* Active and hover states for thumbnails */
+.gallery-thumb.active .gallery-thumb-img,
+.gallery-thumb:hover .gallery-thumb-img,
+.gallery-thumb:focus .gallery-thumb-img {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.18);
+}
+
+/* Main image keeps its proportions and becomes as large as possible without cropping */
+.desktop-gallery-main-image {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.desktop-gallery-viewer {
+    min-height: 560px;
+    height: calc(100vh - 104px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    background-color: #ffffff;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+@media (min-width: 992px) {
+    .desktop-gallery-viewer {
+        padding: 32px;
+    }
+}
+
+/* Mobile adjustments: make carousel full-bleed and remove side background
+   - Use vw margins to let the carousel span the full viewport width
+   - Set the image to `object-fit: cover` on small screens so there are
+     no black bars at the sides (note: this may crop vertically)
+   - Adjust the wrapper height for mobile so the banner looks balanced */
+@media (max-width: 767.98px) {
+    .carousel-container {
+        /* Allow carousel to extend to the edges of the viewport */
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        max-width: 100vw;
+    }
+
+    .carousel-image-wrapper {
+        background-color: transparent; /* remove black bars */
+        height: 50vh; /* mobile banner height; change as needed */
+    }
+
+    .carousel-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* fills width, may crop top/bottom */
+    }
+}
